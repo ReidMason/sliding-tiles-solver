@@ -8,8 +8,7 @@ from utils import get_difficulty
 
 def get_current_game_state(sct: mss.mss, columns: int) -> GameBoard:
     boundaries, image_tiles = get_game_tile_images(sct, columns)
-    game_tiles = [GameTile(x) for x in image_tiles]
-    game_board = GameBoard(game_tiles)
+    game_board = GameBoard([GameTile(x) for x in image_tiles])
     game_board.set_grid_coords(boundaries)
     return game_board
 
