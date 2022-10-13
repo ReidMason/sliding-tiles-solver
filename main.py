@@ -34,6 +34,7 @@ def main(difficulty: int):
             game_board = get_current_game_state(sct, columns)
             complete_game_board = get_completed_game_board(game_board)
 
+            # Click the 
             game_board.click_grid(9, 8)
 
             input("Waiting...")
