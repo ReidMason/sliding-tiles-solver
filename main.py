@@ -1,6 +1,6 @@
 from driver import Driver
 import mss
-from image_helper import find_completed_image_tiles, find_game_area, split_game_image, tile_is_blank
+from image_helper import find_game_area, split_game_image
 from models.game_board import GameBoard
 from models.game_tile import GameTile
 from PIL import Image
@@ -14,8 +14,13 @@ def get_game_tile_images(sct: mss.mss, columns: int) -> List[Image.Image]:
 
 def get_current_game_state(sct: mss.mss, columns: int) -> GameBoard:
     image_tiles = get_game_tile_images(sct, columns)
-    game_tiles = [GameTile(x) for x in image_tiles if not tile_is_blank(x)]
+    game_tiles = [GameTile(x) for x in image_tiles]
     return GameBoard(game_tiles)
+
+
+def get_completed_game_board(current_game_board: GameBoard) -> GameBoard:
+    completed_image_tiles = current_game_board.find_completed_image_tiles()
+    return GameBoard([GameTile(x) for x in completed_image_tiles])
 
 
 def main():
@@ -30,14 +35,9 @@ def main():
             # This should probably be pulled from the site itself
             columns = 3
 
-            # This is the current board
+            # This is the current and completed board states
             game_board = get_current_game_state(sct, columns)
-
-            completed_image_tiles = find_completed_image_tiles(game_board, columns)
-            completed_game_tiles = [GameTile(x) for x in completed_image_tiles]
-
-            # This is the goal board
-            complete_game_board = GameBoard(completed_game_tiles)
+            complete_game_board = get_completed_game_board(game_board)
 
 
 if __name__ == '__main__':

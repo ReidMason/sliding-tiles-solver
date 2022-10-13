@@ -1,13 +1,22 @@
 from itertools import product
-import os
 from typing import List
 from PIL import Image
 import io
 import mss
-from utils import colours_match, images_are_similar
-from models.game_board import GameBoard
+from utils import colours_match
+import imagehash
+
 
 target_colour = (66, 141, 154)
+
+
+def images_are_similar(img_1: Image.Image, img_2: Image.Image) -> bool:
+    hash0 = imagehash.average_hash(img_1)
+    hash1 = imagehash.average_hash(img_2)
+    diff = hash0 - hash1
+    cutoff = 5  # maximum bits that could be different between the hashes.
+
+    return diff < cutoff
 
 
 def tile_is_blank(tile_image: Image.Image):
@@ -90,20 +99,3 @@ def split_game_image(image: Image.Image, columns: int) -> List[Image.Image]:
         images.append(image.crop(box))
 
     return images
-
-
-def find_completed_image_tiles(game_board: GameBoard, columns: int) -> List[Image.Image]:
-    base_path = "data/completed_images"
-    for file in [x for x in os.listdir(base_path) if x.endswith(".webp")]:
-        image_path = os.path.join(base_path, file)
-        reference_image = Image.open(image_path).convert('RGB')
-        reference_images = split_game_image(reference_image, columns)
-
-        matches = 0
-        for img_1 in [x.image for x in game_board.game_tiles_list]:
-            for img_2 in reference_images:
-                if images_are_similar(img_1, img_2):
-                    matches += 1
-
-        if matches >= 8:
-            return reference_images
