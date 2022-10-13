@@ -1,13 +1,9 @@
-import time
-from typing import Tuple
 from driver import Driver
 import mss
-from image_helper import get_game_tile_images, find_game_corners
+from image_helper import get_game_tile_images
 from models.game_board import GameBoard
 from models.game_tile import GameTile
 from utils import get_difficulty
-
-difficulty = 9
 
 
 def get_current_game_state(sct: mss.mss, columns: int) -> GameBoard:
@@ -23,7 +19,7 @@ def get_completed_game_board(current_game_board: GameBoard) -> GameBoard:
     return GameBoard([GameTile(x) for x in completed_image_tiles])
 
 
-def main():
+def main(difficulty: int):
     columns = get_difficulty(difficulty)
     puzzle_grid = f'{difficulty}x{difficulty}'
     # Open the puzzle
@@ -44,4 +40,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    difficulty = 9
+    main(difficulty)
