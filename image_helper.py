@@ -1,12 +1,19 @@
 from itertools import product
 import os
-from typing import List, Tuple
+from typing import List
 from PIL import Image
 import io
 import mss
 from utils import colours_match, images_are_similar
+from models.game_board import GameBoard
 
 target_colour = (66, 141, 154)
+
+
+def tile_is_blank(tile_image: Image.Image):
+    w, h = tile_image.size
+    mid_pixel = tile_image.getpixel((w/2, h/2))
+    return colours_match(mid_pixel, target_colour)
 
 
 def screenshot(sct: mss.mss) -> Image.Image:
@@ -85,18 +92,18 @@ def split_game_image(image: Image.Image, columns: int) -> List[Image.Image]:
     return images
 
 
-def find_completed_image_tiles(game_tiles: List[Image.Image], columns: int) -> Tuple[List[Image.Image], List[Image.Image]]:
+def find_completed_image_tiles(game_board: GameBoard, columns: int) -> List[Image.Image]:
     base_path = "data/completed_images"
     for file in [x for x in os.listdir(base_path) if x.endswith(".webp")]:
         image_path = os.path.join(base_path, file)
         reference_image = Image.open(image_path).convert('RGB')
         reference_images = split_game_image(reference_image, columns)
 
-        matched_images = []
-        for img_1 in game_tiles:
+        matches = 0
+        for img_1 in [x.image for x in game_board.game_tiles_list]:
             for img_2 in reference_images:
                 if images_are_similar(img_1, img_2):
-                    matched_images.append(img_1)
+                    matches += 1
 
-        if len(matched_images) >= 8:
-            return (reference_images, matched_images)
+        if matches >= 8:
+            return reference_images
