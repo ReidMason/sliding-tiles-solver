@@ -30,12 +30,14 @@ def main():
             # This should probably be pulled from the site itself
             columns = 3
 
+            # This is the current board
             game_board = get_current_game_state(sct, columns)
 
             completed_image_tiles = find_completed_image_tiles(game_board, columns)
             completed_game_tiles = [GameTile(x) for x in completed_image_tiles]
+
+            # This is the goal board
             complete_game_board = GameBoard(completed_game_tiles)
-            complete_game_board.game_tiles_list[0].image.show()
 
 
 if __name__ == '__main__':
