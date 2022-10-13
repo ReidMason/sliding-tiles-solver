@@ -6,6 +6,21 @@ logging_level = logging.DEBUG
 log_format = '%(asctime)s [%(name)s] %(message)s'
 log_date_format = '%d-%m-%Y %HL%M:%S'
 
+def get_x_and_y_offset(boundaries: tuple[int, int, int, int]) -> Tuple[float, float]:
+    game_corners = [x/2 for x in boundaries]
+    return game_corners[0], game_corners[1]
+
+
+def get_width_and_height(boundaries: tuple[int, int, int, int]) -> Tuple[int, int]:
+    game_corners = [x/2 for x in boundaries]
+    width = game_corners[2] - game_corners[0]
+    height = game_corners[3] - game_corners[1]
+    return width, height
+
+
+def get_difficulty(difficulty: int):
+    return min(max(3, difficulty), 10)
+
 
 def create_logger(name: str) -> logging.Logger:
     logging.basicConfig(format=log_format, datefmt=log_date_format)
@@ -41,3 +56,4 @@ def list_to_2d_array(game_tiles: List[any]) -> List[List[any]]:
         game_array.append(row)
 
     return game_array
+

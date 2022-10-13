@@ -1,21 +1,21 @@
+import time
+from typing import Tuple
 from driver import Driver
 import mss
-from image_helper import find_game_area, split_game_image
+from image_helper import get_game_tile_images, find_game_corners
 from models.game_board import GameBoard
 from models.game_tile import GameTile
-from PIL import Image
-from typing import List
+from utils import get_difficulty
 
-
-def get_game_tile_images(sct: mss.mss, columns: int) -> List[Image.Image]:
-    game_area = find_game_area(sct)
-    return split_game_image(game_area, columns)
+difficulty = 9
 
 
 def get_current_game_state(sct: mss.mss, columns: int) -> GameBoard:
-    image_tiles = get_game_tile_images(sct, columns)
+    boundaries, image_tiles = get_game_tile_images(sct, columns)
     game_tiles = [GameTile(x) for x in image_tiles]
-    return GameBoard(game_tiles)
+    game_board = GameBoard(game_tiles)
+    game_board.set_grid_coords(boundaries)
+    return game_board
 
 
 def get_completed_game_board(current_game_board: GameBoard) -> GameBoard:
@@ -24,20 +24,23 @@ def get_completed_game_board(current_game_board: GameBoard) -> GameBoard:
 
 
 def main():
+    columns = get_difficulty(difficulty)
+    puzzle_grid = f'{difficulty}x{difficulty}'
     # Open the puzzle
-    puzzle_url = 'https://slidingtiles.com/en/puzzle/play/food/3665-tray-of-poultry-eggs#3x3F'
+    puzzle_url = f'https://slidingtiles.com/en/puzzle/play/food/3665-tray-of-poultry-eggs#{puzzle_grid}'
     with Driver('data/webdrivers/geckodriver/geckodriver', fullscreen=True) as driver:
         driver.go(puzzle_url)
         driver.click('#start-solve-button')
 
         # Open the screenshot utility
         with mss.mss() as sct:
-            # This should probably be pulled from the site itself
-            columns = 3
-
             # This is the current and completed board states
             game_board = get_current_game_state(sct, columns)
             complete_game_board = get_completed_game_board(game_board)
+
+            game_board.click_grid(9, 8)
+
+            input("Waiting...")
 
 
 if __name__ == '__main__':
